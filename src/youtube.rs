@@ -64,7 +64,7 @@ pub fn fetch(id: &str) -> hyper::error::Result<Response> {
     };
     
     println!("{}", out.lookup("args.title").unwrap().as_string().unwrap());
-    println!("URL: https://www.youtube.com/watch?v={}", id);
+    println!("<https://www.youtube.com/watch?v={}>", id);
 
     // println!("um");
 
