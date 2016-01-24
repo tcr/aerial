@@ -29,7 +29,7 @@ pub fn fetch(id: &str) -> hyper::error::Result<Response> {
     let client_id = "c8ce5cbca9160b790311f06638a61037";
 
     let info = fetch_json(&format!("https://api.soundcloud.com/tracks/{}?client_id={}&format=json", sn_id, client_id)).unwrap();
-    // println!("Track: {}", info.lookup("title").unwrap().as_string().unwrap());
+    println!("{}", info.lookup("title").unwrap().as_string().unwrap());
     println!("URL: {}", info.lookup("permalink_url").unwrap().as_string().unwrap());
 
     let streams = fetch_json(&format!("https://api.soundcloud.com/tracks/{}/streams?client_id={}&format=json", sn_id, client_id)).unwrap();

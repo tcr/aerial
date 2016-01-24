@@ -18,6 +18,7 @@ use std::io;
 use std::process::{Command, Stdio};
 use std::sync::mpsc::{sync_channel, Receiver};
 use std::thread;
+use std::iter::once;
 
 fn main () {    
     // let keys = Command::new("/Users/timryan/tcr/aerial/mediakeys/osx/out/Default/keylistener")
@@ -37,7 +38,19 @@ fn main () {
 
     let mut log = File::create(env::home_dir().unwrap().join(".aerial_history")).unwrap();
 
-    loop {
+    let stdin = io::stdin();
+    let lineiter: Box<Iterator<Item=io::Result<String>>>;
+    if let Some(input) = env::args().nth(1) {
+        if input == "-" {
+            lineiter = Box::new(stdin.lock().lines());
+        } else {
+            lineiter = Box::new(once(Ok(input)));
+        }
+    } else {
+        lineiter = Box::new(stdin.lock().lines());
+    }
+
+    for input in lineiter {
         // let body = fetch_string(&format!("http://api.dubtrack.fm/room/{}", env::args().nth(1).unwrap()));
         // let test: Value = serde_json::from_str(&body).unwrap();
 
@@ -51,32 +64,32 @@ fn main () {
         // let id = test.lookup("data.currentSong.fkid").unwrap().as_string().unwrap();
         // let songtype = test.lookup("data.currentSong.type").unwrap().as_string().unwrap();
 
-        let mut input = String::new();
-        match io::stdin().read_line(&mut input) {
-            Ok(_) => {
-                log.write_all(input.as_bytes()).ok();
+        // let mut input = String::new();
+        // match io::stdin().read_line(&mut input) {
+        //     Ok(_) => {
 
-                let mut items = input.split(":");
-                let songtype = items.next().unwrap();
-                let id = items.next().unwrap();
+        let input = input.unwrap();
+        let input = input.trim();
 
-                // println!("Type: {:?}", songtype);
-                let song = if songtype == "soundcloud" {
-                    soundcloud::fetch(id).unwrap()
-                } else {
-                    youtube::fetch(id).unwrap()
-                };
+        // Write to aerial_history.
+        log.write_all(input.as_bytes()).ok();
 
-                play_interactive(Box::new(song), &rx);
+        // Parse IDs.
+        let mut items = input.split(":");
+        let songtype = items.next().unwrap();
+        let id = items.next().unwrap();
 
-                println!("");
-                println!("");
-            }
-            Err(error) => {
-                println!("input terminated: {:?}", error);
-                break;
-            }
-        }
+        // println!("Type: {:?}", songtype);
+        let song = if songtype == "soundcloud" {
+            soundcloud::fetch(id).unwrap()
+        } else {
+            youtube::fetch(id).unwrap()
+        };
+
+        play_interactive(Box::new(song), &rx);
+
+        println!("");
+        println!("");
     }
 }
 

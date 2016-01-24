@@ -28,7 +28,6 @@ pub fn fetch(id: &str) -> hyper::error::Result<Response> {
     let client = Client::new();
 
     let id = id.trim();
-    println!("URL: https://www.youtube.com/watch?v={}", id);
 
     // Creating an outgoing request.
     let mut res = client.get(&format!("https://www.youtube.com/watch?v={}", id))
@@ -40,10 +39,10 @@ pub fn fetch(id: &str) -> hyper::error::Result<Response> {
     let input = input.try_reinterpret().unwrap();
 
     let dom: RcDom = parse(one_input(input), Default::default());
-    let scripts = get_scripts(dom.document);
 
     // println!("hi");
 
+    let scripts = get_scripts(dom.document);
     let script = scripts.iter().filter(|x| x.find("ytplayer.config = ").is_some()).nth(0).unwrap();
 
     let idx = script.find("ytplayer.config = ").unwrap();
@@ -63,6 +62,9 @@ pub fn fetch(id: &str) -> hyper::error::Result<Response> {
             panic!("couldn't parse json: {:?}", err);
         }
     };
+    
+    println!("{}", out.lookup("args.title").unwrap().as_string().unwrap());
+    println!("URL: https://www.youtube.com/watch?v={}", id);
 
     // println!("um");
 
