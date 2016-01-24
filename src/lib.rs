@@ -14,9 +14,7 @@ use html5ever::rcdom::{Text, Element, Handle};
 use hyper::Client;
 use hyper::header::Connection;
 use regex::{Captures, Regex};
-use std::io::{BufReader, BufRead, Read, Cursor, ErrorKind};
-use serde_json::error::Error as DeError;
-use serde_json::error::ErrorCode as DeErrorCode;
+use std::io::{BufReader, BufRead, Read, ErrorKind};
 use serde_json::Value;
 
 fn get_scripts(handle: Handle) -> Vec<String> {

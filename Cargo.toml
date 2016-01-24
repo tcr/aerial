@@ -1,6 +1,6 @@
 [package]
 name = "aerial"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Tim Ryan <id@timryan.org>"]
 description = "Sources for audio streams."
 license = "MIT"

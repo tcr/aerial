@@ -27,6 +27,7 @@ enum SigAction {
 pub fn fetch(id: &str) -> hyper::error::Result<Response> {
     let client = Client::new();
 
+    let id = id.trim();
     println!("URL: https://www.youtube.com/watch?v={}", id);
 
     // Creating an outgoing request.

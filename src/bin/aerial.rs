@@ -8,16 +8,16 @@ extern crate serde_json;
 extern crate tendril;
 extern crate url;
 
-use aerial::{fetch_string, youtube, soundcloud, snitch};
-use nix::sys::signal::{kill, SIGSTOP, SIGCONT};
-use serde_json::Value;
+// use nix::sys::signal::{kill, SIGSTOP, SIGCONT};
+use aerial::{youtube, soundcloud, snitch};
+use regex::Regex;
 use std::env;
-use std::io::{BufReader, BufRead, Read, Write};
+use std::fs::File;
+use std::io::{BufRead, Read, Write};
 use std::io;
 use std::process::{Command, Stdio};
 use std::sync::mpsc::{sync_channel, Receiver};
 use std::thread;
-use regex::Regex;
 
 fn main () {    
     // let keys = Command::new("/Users/timryan/tcr/aerial/mediakeys/osx/out/Default/keylistener")
@@ -27,13 +27,15 @@ fn main () {
     //     .spawn()
     //     .unwrap();
 
-    let (tx, rx) = sync_channel(0);
+    let (_, rx) = sync_channel(0);
     // thread::spawn(move || {
     //     let keys_out = keys.stdout.unwrap();
     //     for line in BufReader::new(keys_out).lines() {
     //         tx.send(line.unwrap()).unwrap();
     //     }
     // });
+
+    let mut log = File::create(env::home_dir().unwrap().join(".aerial_history")).unwrap();
 
     loop {
         // let body = fetch_string(&format!("http://api.dubtrack.fm/room/{}", env::args().nth(1).unwrap()));
@@ -51,7 +53,9 @@ fn main () {
 
         let mut input = String::new();
         match io::stdin().read_line(&mut input) {
-            Ok(n) => {
+            Ok(_) => {
+                log.write_all(input.as_bytes()).ok();
+
                 let mut items = input.split(":");
                 let songtype = items.next().unwrap();
                 let id = items.next().unwrap();
@@ -76,8 +80,7 @@ fn main () {
     }
 }
 
-#[allow(boxed_local)]
-fn play_interactive(mut stream: Box<Read + Send>, keys: &Receiver<String>) {
+fn play_interactive(mut stream: Box<Read + Send>, _: &Receiver<String>) {
     let ffmpeg = Command::new("ffmpeg").args(&["-i", "-", "-f", "mp3", "-"])
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
@@ -93,7 +96,7 @@ fn play_interactive(mut stream: Box<Read + Send>, keys: &Receiver<String>) {
         .unwrap();
 
 
-    let playpid = play.id() as i32;
+    // let playpid = play.id() as i32;
     let mut ffmpeg_stdin = ffmpeg.stdin.unwrap();
     let mut ffmpeg_stdout = ffmpeg.stdout.unwrap();
     let mut play_stdin = play.stdin.unwrap();
@@ -109,7 +112,7 @@ fn play_interactive(mut stream: Box<Read + Send>, keys: &Receiver<String>) {
 
     let t3 = thread::spawn(move || {
         for item in snitch(&mut play_stderr, &Regex::new(r"In:.*?\].*?\]").unwrap()) {
-            write!(&mut io::stderr(), "{}\r", item.snitch().at(0).unwrap());
+            write!(&mut io::stderr(), "{}\r", item.snitch().at(0).unwrap()).ok();
         }
     });
 

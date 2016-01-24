@@ -1,21 +1,10 @@
 use fetch_json;
-use get_scripts;
 use snitch;
-use html5ever::rcdom::{RcDom};
-use html5ever::{parse, one_input};
 use hyper::client::response::Response;
 use hyper::Client;
 use hyper::header::{Connection, UserAgent};
 use hyper;
-use regex::{Regex, quote, is_match};
-use serde_json::error::Error as DeError;
-use serde_json::error::ErrorCode as DeErrorCode;
-use serde_json::Value;
-use serde_json;
-use std::default::Default;
-use std::io::Read;
-use tendril::{ByteTendril, ReadExt};
-use url::form_urlencoded;
+use regex::{Regex, is_match};
 
 pub fn fetch(id: &str) -> hyper::error::Result<Response> {
     let client = Client::new();
