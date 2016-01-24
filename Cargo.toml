@@ -1,0 +1,16 @@
+[package]
+name = "aerial"
+version = "0.1.0"
+authors = ["Tim Ryan <id@timryan.org>"]
+description = "Sources for audio streams."
+license = "MIT"
+
+[dependencies]
+hyper = "0.7.2"
+html5ever = "0.2.11"
+tendril = "0.1.6"
+serde = "0.6.7"
+serde_json = "0.6.0"
+url = "0.5.2"
+regex = "0.1.47"
+nix = "0.4.2"
